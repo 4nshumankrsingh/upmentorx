@@ -1,14 +1,19 @@
-'use client';
+"use client";
 
 import { useState } from 'react';
 import { useJobStore } from '@/lib/stores/jobStore';
 import { Button } from '@/components/ui/button';
 import { X, User, Star, Brain, Sparkles, Loader2 } from 'lucide-react';
 import { getMatchColor, calculateEnhancedMatch } from '@/lib/utils';
+import type { Candidate } from '@/lib/types';
 
 export default function AICandidateMatch() {
   const { selectedJob, setSelectedJob, getCandidatesForJob } = useJobStore();
-  const [enhancedCandidates, setEnhancedCandidates] = useState<any[]>([]);
+  const [enhancedCandidates, setEnhancedCandidates] = useState<Array<Candidate & {
+    aiReasoning?: string;
+    confidence?: string;
+    isAI?: boolean;
+  }>>([]);
   const [useAI, setUseAI] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
@@ -19,7 +24,7 @@ export default function AICandidateMatch() {
     setUseAI(true);
     
     const simpleCandidates = getCandidatesForJob(selectedJob.id);
-    const enhancedResults = [];
+  const enhancedResults: Array<Candidate & { aiReasoning?: string; confidence?: string; isAI?: boolean; }> = [];
 
     for (const candidate of simpleCandidates) {
       const enhancedMatch = await calculateEnhancedMatch(
@@ -66,7 +71,7 @@ export default function AICandidateMatch() {
   const simpleCandidates = getCandidatesForJob(selectedJob.id)
     .sort((a, b) => b.matchScore - a.matchScore);
 
-  const candidates = useAI ? enhancedCandidates : simpleCandidates;
+  const candidates = (useAI ? enhancedCandidates : simpleCandidates) as Array<Candidate & { aiReasoning?: string; confidence?: string; isAI?: boolean }>;
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6">

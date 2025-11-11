@@ -23,3 +23,9 @@ export interface PipelineStage {
   title: string;
   color: string;
 }
+
+export interface Filters {
+  minMatchScore: number;
+  status: Candidate['status'] | '';
+  skills: string;
+}

@@ -3,27 +3,28 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Filter, X, Sparkles } from 'lucide-react';
+import type { Filters } from '@/lib/types';
 
 interface SmartFiltersProps {
-  onFilterChange: (filters: any) => void;
+  onFilterChange: (filters: Filters) => void;
 }
 
 export default function SmartFilters({ onFilterChange }: SmartFiltersProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<Filters>({
     minMatchScore: 0,
     status: '',
     skills: '',
   });
 
-  const handleFilterChange = (key: string, value: any) => {
-    const newFilters = { ...filters, [key]: value };
+  const handleFilterChange = (key: keyof Filters, value: Filters[keyof Filters]) => {
+    const newFilters = { ...filters, [key]: value } as Filters;
     setFilters(newFilters);
     onFilterChange(newFilters);
   };
 
   const clearFilters = () => {
-    const clearedFilters = { minMatchScore: 0, status: '', skills: '' };
+    const clearedFilters: Filters = { minMatchScore: 0, status: '' as Filters['status'], skills: '' };
     setFilters(clearedFilters);
     onFilterChange(clearedFilters);
   };
@@ -68,7 +69,7 @@ export default function SmartFilters({ onFilterChange }: SmartFiltersProps) {
               max="100"
               step="10"
               value={filters.minMatchScore}
-              onChange={(e) => handleFilterChange('minMatchScore', parseInt(e.target.value))}
+              onChange={(e) => handleFilterChange('minMatchScore', parseInt(e.target.value) as Filters['minMatchScore'])}
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
@@ -85,7 +86,7 @@ export default function SmartFilters({ onFilterChange }: SmartFiltersProps) {
             </label>
             <select
               value={filters.status}
-              onChange={(e) => handleFilterChange('status', e.target.value)}
+              onChange={(e) => handleFilterChange('status', e.target.value as Filters['status'])}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             >
               <option value="">All Status</option>
@@ -104,7 +105,7 @@ export default function SmartFilters({ onFilterChange }: SmartFiltersProps) {
             <input
               type="text"
               value={filters.skills}
-              onChange={(e) => handleFilterChange('skills', e.target.value)}
+              onChange={(e) => handleFilterChange('skills', e.target.value as Filters['skills'])}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               placeholder="e.g., React, Python"
             />

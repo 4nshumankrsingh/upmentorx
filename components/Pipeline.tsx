@@ -1,15 +1,16 @@
 'use client';
 
-import { DndContext, DragEndEvent, DragOverEvent, DragStartEvent, closestCenter } from '@dnd-kit/core';
-import { arrayMove, SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
+import { DndContext, DragEndEvent, DragStartEvent, closestCenter } from '@dnd-kit/core';
+import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
 import { useJobStore } from '@/lib/stores/jobStore';
 import PipelineColumn from './PipelineColumn';
 import { pipelineStages } from '@/lib/mockData';
 import { useState } from 'react';
+import type { Candidate } from '@/lib/types';
 
 export default function Pipeline() {
   const { candidates, updateCandidateStatus, selectedJob } = useJobStore();
-  const [activeId, setActiveId] = useState<string | null>(null);
+  // activeId not currently used for rendering; keep state minimal
 
   // Filter candidates for selected job if any
   const displayCandidates = selectedJob 
@@ -24,20 +25,20 @@ export default function Pipeline() {
     : candidates;
 
   const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
+    // no-op for now; left here for future UX improvements
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    setActiveId(null);
+    // no activeId tracking required on end
 
     if (!over) return;
 
     const candidateId = parseInt(active.id as string);
-    const newStatus = over.data.current?.status;
+    const newStatus = over.data.current?.status as Candidate['status'] | undefined;
 
     if (newStatus && ['Applied', 'Screened', 'Interview', 'Hired'].includes(newStatus)) {
-      updateCandidateStatus(candidateId, newStatus as any);
+      updateCandidateStatus(candidateId, newStatus);
     }
   };
 

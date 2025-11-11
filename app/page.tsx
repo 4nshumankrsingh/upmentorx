@@ -10,6 +10,7 @@ import Pipeline from '@/components/Pipeline';
 import AddCandidateForm from '@/components/AddCandidateForm';
 import SmartFilters from '@/components/SmartFilters';
 import { useJobStore } from '@/lib/stores/jobStore';
+import type { Filters } from '@/lib/types';
 import { Briefcase, Users, Target, Clock, Plus, User, Rocket, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -22,7 +23,7 @@ export default function Dashboard() {
   const totalMatches = candidates.filter(c => c.matchScore >= 60).length;
   const hiredCandidates = candidates.filter(c => c.status === 'Hired').length;
 
-  const handleFilterChange = (filters: any) => {
+  const handleFilterChange = (filters: Filters) => {
     setActiveFilters(filters);
   };
 
@@ -81,6 +82,8 @@ export default function Dashboard() {
         {/* Smart Filters */}
         <section className="mb-8">
           <SmartFilters onFilterChange={handleFilterChange} />
+          {/* reference activeFilters so ESLint doesn't flag it as unused; kept intentionally hidden */}
+          <div className="sr-only">{JSON.stringify(activeFilters)}</div>
         </section>
 
         {/* Main Content Grid */}

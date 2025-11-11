@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useJobStore } from '@/lib/stores/jobStore';
+import type { Candidate } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { X, Plus, User } from 'lucide-react';
 
@@ -132,7 +133,7 @@ export default function AddCandidateForm({ onClose }: AddCandidateFormProps) {
           <select
             id="status"
             value={status}
-            onChange={(e) => setStatus(e.target.value as any)}
+            onChange={(e) => setStatus(e.target.value as Candidate['status'])}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           >
             <option value="Applied">Applied</option>
