@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useJobStore } from '@/lib/stores/jobStore';
 import { Button } from '@/components/ui/button';
-import { X, User, Star, Brain, Sparkles, Loader2 } from 'lucide-react';
-import { getMatchColor, calculateEnhancedMatch } from '@/lib/utils';
+import { X, User, Brain, Loader2 } from 'lucide-react';
+import { calculateEnhancedMatch } from '@/lib/utils';
 import type { Candidate } from '@/lib/types';
 import DraggableCandidateListItem from './DraggableCandidateListItem';
 
