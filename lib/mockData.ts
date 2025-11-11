@@ -1,4 +1,6 @@
-export const mockJobs = [
+import { Job, Candidate, PipelineStage } from '@/lib/types';
+
+export const mockJobs: Job[] = [
   {
     id: 1,
     title: "Frontend Developer",
@@ -25,14 +27,14 @@ export const mockJobs = [
   },
 ];
 
-export const mockCandidates = [
+export const mockCandidates: Candidate[] = [
   {
     id: 1,
     name: "Priya Sharma",
     role: "Frontend Developer",
     skills: ["React", "TypeScript", "Next.js", "JavaScript"],
     matchScore: 85,
-    status: "Applied" as const,
+    status: "Applied",
     email: "priya@example.com",
     appliedDate: new Date().toISOString(),
   },
@@ -42,7 +44,7 @@ export const mockCandidates = [
     role: "Data Scientist",
     skills: ["Python", "Machine Learning", "SQL", "TensorFlow"],
     matchScore: 92,
-    status: "Screened" as const,
+    status: "Screened",
     email: "rahul@example.com",
     appliedDate: new Date().toISOString(),
   },
@@ -52,7 +54,7 @@ export const mockCandidates = [
     role: "Full Stack Engineer",
     skills: ["Node.js", "React", "MongoDB", "TypeScript"],
     matchScore: 78,
-    status: "Interview" as const,
+    status: "Interview",
     email: "anjali@example.com",
     appliedDate: new Date().toISOString(),
   },
@@ -62,13 +64,13 @@ export const mockCandidates = [
     role: "Frontend Developer",
     skills: ["React", "JavaScript", "CSS", "HTML"],
     matchScore: 65,
-    status: "Applied" as const,
+    status: "Applied",
     email: "vikram@example.com",
     appliedDate: new Date().toISOString(),
   },
 ];
 
-export const pipelineStages = [
+export const pipelineStages: PipelineStage[] = [
   { id: "applied", title: "Applied", color: "bg-blue-100 text-blue-800" },
   { id: "screened", title: "Screened", color: "bg-purple-100 text-purple-800" },
   { id: "interview", title: "Interview", color: "bg-yellow-100 text-yellow-800" },

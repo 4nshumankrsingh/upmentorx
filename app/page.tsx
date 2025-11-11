@@ -1,8 +1,23 @@
+'use client';
+
+import { useState } from 'react';
 import Header from '@/components/Header';
 import StatsCard from '@/components/StatsCard';
-import { Briefcase, Users, Target, Clock } from 'lucide-react';
+import JobForm from '@/components/JobForm';
+import JobList from '@/components/JobList';
+import CandidateMatch from '@/components/CandidateMatch';
+import { useJobStore } from '@/lib/stores/jobStore';
+import { Briefcase, Users, Target, Clock, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+import AICandidateMatch from '@/components/AICandidateMatch';
 
 export default function Dashboard() {
+  const [showJobForm, setShowJobForm] = useState(false);
+  const { jobs, candidates } = useJobStore();
+
+  const totalMatches = candidates.filter(c => c.matchScore >= 60).length;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -10,25 +25,31 @@ export default function Dashboard() {
       <main className="container mx-auto px-6 py-8">
         {/* Stats Overview */}
         <section className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard Overview</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Dashboard Overview</h2>
+            <Button onClick={() => setShowJobForm(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Create Job
+            </Button>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatsCard
               title="Total Jobs"
-              value="12"
+              value={jobs.length.toString()}
               icon={Briefcase}
               color="orange"
               trend="+2 this week"
             />
             <StatsCard
               title="Candidates"
-              value="48"
+              value={candidates.length.toString()}
               icon={Users}
               color="blue"
               trend="+8 today"
             />
             <StatsCard
               title="Matches"
-              value="32"
+              value={totalMatches.toString()}
               icon={Target}
               color="green"
               trend="85% rate"
@@ -45,48 +66,42 @@ export default function Dashboard() {
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Job Management Section - Will be 2/3 width on desktop */}
+          {/* Left Column - Job Management */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Job Creation - Coming in Phase 3 */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Job Management</h3>
-              <p className="text-gray-600">Job creation form will be implemented in Phase 3</p>
-            </div>
-
-            {/* Job List - Coming in Phase 3 */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Active Jobs</h3>
-              <p className="text-gray-600">Job listings will be implemented in Phase 3</p>
-            </div>
-          </div>
-
-          {/* Candidate Pipeline - Coming in Phase 4 */}
-          <div className="space-y-8">
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Candidate Pipeline</h3>
-              <p className="text-gray-600">Kanban board with drag & drop coming in Phase 4</p>
-            </div>
-
-            {/* AI Matching - Coming in Phase 4 */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">AI Matching</h3>
-              <p className="text-gray-600">AI-powered candidate matching coming in Phase 4</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Progress Indicator */}
-        <div className="mt-12 bg-white rounded-xl border border-gray-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Development Progress</h3>
-              <p className="text-gray-600 mt-1">Phase 2 of 5 completed - Core Layout & UI Components</p>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-32 bg-gray-200 rounded-full h-2">
-                <div className="bg-orange-500 h-2 rounded-full" style={{ width: '40%' }}></div>
+            {/* Job Creation Form */}
+            {showJobForm ? (
+              <JobForm onClose={() => setShowJobForm(false)} />
+            ) : (
+              <div className="bg-white rounded-xl border border-gray-200 p-6 text-center">
+                <Button onClick={() => setShowJobForm(true)} variant="outline">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create New Job
+                </Button>
               </div>
-              <span className="text-sm font-medium text-gray-700">40%</span>
+            )}
+
+            {/* Job List */}
+            <JobList />
+          </div>
+
+          {/* Right Column - Candidate Matching */}
+          <div className="space-y-8">
+            <AICandidateMatch />
+            
+            {/* Progress Indicator */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Development Progress</h3>
+                  <p className="text-gray-600 mt-1">Phase 3 of 5 completed - Job Management System</p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-32 bg-gray-200 rounded-full h-2">
+                    <div className="bg-orange-500 h-2 rounded-full" style={{ width: '60%' }}></div>
+                  </div>
+                  <span className="text-sm font-medium text-gray-700">60%</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
