@@ -17,7 +17,7 @@ export default function DraggableCandidateCard({ candidate }: DraggableCandidate
     transform,
     isDragging,
   } = useDraggable({
-    id: candidate.id.toString(),
+    id: candidate.id, // Use just the numeric ID, consistent with list items
     data: {
       type: 'candidate',
       candidate,

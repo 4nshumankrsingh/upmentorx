@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
 import Header from '@/components/Header';
 import StatsCard from '@/components/StatsCard';
 import JobForm from '@/components/JobForm';
@@ -10,21 +11,63 @@ import Pipeline from '@/components/Pipeline';
 import AddCandidateForm from '@/components/AddCandidateForm';
 import SmartFilters from '@/components/SmartFilters';
 import { useJobStore } from '@/lib/stores/jobStore';
-import type { Filters } from '@/lib/types';
 import { Briefcase, Users, Target, Clock, Plus, User, Rocket, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { pipelineStages } from '@/lib/mockData';
 
 export default function Dashboard() {
   const [showJobForm, setShowJobForm] = useState(false);
   const [showAddCandidate, setShowAddCandidate] = useState(false);
   const [activeFilters, setActiveFilters] = useState({});
-  const { jobs, candidates, selectedJob } = useJobStore();
+  const { jobs, candidates, selectedJob, updateCandidateStatus } = useJobStore();
 
   const totalMatches = candidates.filter(c => c.matchScore >= 60).length;
   const hiredCandidates = candidates.filter(c => c.status === 'Hired').length;
 
-  const handleFilterChange = (filters: Filters) => {
+  const handleFilterChange = (filters: any) => {
     setActiveFilters(filters);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    console.log('=== DRAG DEBUG ===');
+    console.log('Active:', {
+      id: active.id,
+      data: active.data.current
+    });
+    console.log('Over:', {
+      id: over?.id,
+      data: over?.data.current
+    });
+
+    if (!over) {
+      console.log('No drop target');
+      return;
+    }
+
+    // Extract candidate ID from active element
+    let candidateId: number;
+    
+    if (typeof active.id === 'number') {
+      candidateId = active.id;
+    } else if (typeof active.id === 'string' && !isNaN(Number(active.id))) {
+      candidateId = parseInt(active.id);
+    } else {
+      console.log('Unknown active ID format:', active.id);
+      return;
+    }
+
+    const newStatus = over.data.current?.status;
+
+    console.log('Parsed values:', { candidateId, newStatus });
+
+    if (newStatus && ['Applied', 'Screened', 'Interview', 'Hired'].includes(newStatus)) {
+      console.log(`Updating candidate ${candidateId} to status: ${newStatus}`);
+      updateCandidateStatus(candidateId, newStatus as any);
+    } else {
+      console.log('Invalid status or missing data');
+    }
   };
 
   return (
@@ -82,85 +125,88 @@ export default function Dashboard() {
         {/* Smart Filters */}
         <section className="mb-8">
           <SmartFilters onFilterChange={handleFilterChange} />
-          {/* reference activeFilters so ESLint doesn't flag it as unused; kept intentionally hidden */}
-          <div className="sr-only">{JSON.stringify(activeFilters)}</div>
         </section>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Job Management */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Job Creation Form */}
-            {showJobForm ? (
-              <JobForm onClose={() => setShowJobForm(false)} />
-            ) : (
-              <div className="bg-white rounded-xl border border-gray-200 p-6 text-center">
-                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Briefcase className="w-6 h-6 text-orange-600" />
+        {/* Main Content Grid with Single DndContext */}
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Job Management */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Job Creation Form */}
+              {showJobForm ? (
+                <JobForm onClose={() => setShowJobForm(false)} />
+              ) : (
+                <div className="bg-white rounded-xl border border-gray-200 p-6 text-center">
+                  <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Briefcase className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Ready to Post a New Job?</h3>
+                  <p className="text-gray-600 mb-4">Create a job listing to start finding perfect candidates</p>
+                  <Button onClick={() => setShowJobForm(true)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Your First Job
+                  </Button>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Ready to Post a New Job?</h3>
-                <p className="text-gray-600 mb-4">Create a job listing to start finding perfect candidates</p>
-                <Button onClick={() => setShowJobForm(true)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Your First Job
-                </Button>
-              </div>
-            )}
+              )}
 
-            {/* Add Candidate Form */}
-            {showAddCandidate && (
-              <AddCandidateForm onClose={() => setShowAddCandidate(false)} />
-            )}
+              {/* Add Candidate Form */}
+              {showAddCandidate && (
+                <AddCandidateForm onClose={() => setShowAddCandidate(false)} />
+              )}
 
-            {/* Job List */}
-            <JobList />
+              {/* Job List */}
+              <JobList />
 
-            {/* Pipeline for Selected Job */}
-            {selectedJob && <Pipeline />}
-          </div>
+              {/* Pipeline for Selected Job */}
+              {selectedJob && <Pipeline />}
+            </div>
 
-          {/* Right Column - AI Matching */}
-          <div className="space-y-8">
-            <AICandidateMatch />
-            
-            {/* Demo Completion */}
-            <div className="bg-linear-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white">
-              <div className="flex items-center space-x-3 mb-4">
-                <Rocket className="w-8 h-8" />
-                <div>
-                  <h3 className="text-lg font-semibold">Prototype Complete</h3>
-                  <p className="text-orange-100 text-sm">All features implemented and ready</p>
+            {/* Right Column - AI Matching */}
+            <div className="space-y-8">
+              <AICandidateMatch />
+              
+              {/* Demo Completion */}
+              <div className="bg-linear-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white">
+                <div className="flex items-center space-x-3 mb-4">
+                  <Rocket className="w-8 h-8" />
+                  <div>
+                    <h3 className="text-lg font-semibold">Prototype Complete</h3>
+                    <p className="text-orange-100 text-sm">All features implemented and ready</p>
+                  </div>
                 </div>
+                <ul className="space-y-2 text-sm text-orange-100">
+                  <li className="flex items-center space-x-2">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Job Management System</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Drag & Drop Pipeline</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>AI-Powered Matching</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Smart Filters</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Candidate Management</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Professional UI</span>
+                  </li>
+                </ul>
               </div>
-              <ul className="space-y-2 text-sm text-orange-100">
-                <li className="flex items-center space-x-2">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Job Management System</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Drag & Drop Pipeline</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>AI-Powered Matching</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Smart Filters</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Candidate Management</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Professional UI</span>
-                </li>
-              </ul>
             </div>
           </div>
-        </div>
+        </DndContext>
       </main>
     </div>
   );

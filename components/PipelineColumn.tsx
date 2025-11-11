@@ -1,7 +1,6 @@
 'use client';
 
 import { useDroppable } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Candidate } from '@/lib/types';
 import DraggableCandidateCard from './DraggableCandidateCard';
 
@@ -17,9 +16,9 @@ export default function PipelineColumn({ id, title, color, candidates }: Pipelin
     isOver,
     setNodeRef,
   } = useDroppable({
-    id,
+    id: `pipeline-${id}`, // Keep pipeline prefix for columns
     data: {
-      type: 'column',
+      type: 'pipeline-column',
       status: title,
     },
   });
@@ -37,21 +36,22 @@ export default function PipelineColumn({ id, title, color, candidates }: Pipelin
       
       <div
         ref={setNodeRef}
-        className={`h-96 overflow-y-auto rounded-lg border-2 border-dashed transition-colors ${
+        className={`min-h-96 rounded-lg border-2 border-dashed transition-colors ${
           isOver 
             ? 'border-orange-300 bg-orange-50' 
             : 'border-gray-200 bg-gray-50'
         } p-3 space-y-3`}
       >
-        <SortableContext items={candidates.map(c => c.id.toString())} strategy={verticalListSortingStrategy}>
-          {candidates.map((candidate) => (
-            <DraggableCandidateCard key={candidate.id} candidate={candidate} />
-          ))}
-        </SortableContext>
+        {candidates.map((candidate) => (
+          <DraggableCandidateCard key={candidate.id} candidate={candidate} />
+        ))}
         
         {candidates.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
-            <p className="text-sm">Drop candidates here</p>
+          <div className="h-32 flex items-center justify-center text-gray-500">
+            <div className="text-center">
+              <p className="text-sm mb-1">Drop candidates here</p>
+              <p className="text-xs text-gray-400">Drag from candidate list</p>
+            </div>
           </div>
         )}
       </div>

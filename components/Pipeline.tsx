@@ -1,16 +1,11 @@
 'use client';
 
-import { DndContext, DragEndEvent, DragStartEvent, closestCenter } from '@dnd-kit/core';
-import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
 import { useJobStore } from '@/lib/stores/jobStore';
 import PipelineColumn from './PipelineColumn';
 import { pipelineStages } from '@/lib/mockData';
-import { useState } from 'react';
-import type { Candidate } from '@/lib/types';
 
 export default function Pipeline() {
-  const { candidates, updateCandidateStatus, selectedJob } = useJobStore();
-  // activeId not currently used for rendering; keep state minimal
+  const { candidates, selectedJob } = useJobStore();
 
   // Filter candidates for selected job if any
   const displayCandidates = selectedJob 
@@ -23,24 +18,6 @@ export default function Pipeline() {
         )
       )
     : candidates;
-
-  const handleDragStart = (event: DragStartEvent) => {
-    // no-op for now; left here for future UX improvements
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    // no activeId tracking required on end
-
-    if (!over) return;
-
-    const candidateId = parseInt(active.id as string);
-    const newStatus = over.data.current?.status as Candidate['status'] | undefined;
-
-    if (newStatus && ['Applied', 'Screened', 'Interview', 'Hired'].includes(newStatus)) {
-      updateCandidateStatus(candidateId, newStatus);
-    }
-  };
 
   if (!selectedJob) {
     return (
@@ -65,25 +42,17 @@ export default function Pipeline() {
         </div>
       </div>
 
-      <DndContext
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="flex space-x-6 overflow-x-auto pb-4">
-          <SortableContext items={pipelineStages.map(s => s.id)} strategy={horizontalListSortingStrategy}>
-            {pipelineStages.map((stage) => (
-              <PipelineColumn
-                key={stage.id}
-                id={stage.id}
-                title={stage.title}
-                color={stage.color}
-                candidates={displayCandidates.filter(c => c.status === stage.title)}
-              />
-            ))}
-          </SortableContext>
-        </div>
-      </DndContext>
+      <div className="flex space-x-6 overflow-x-auto pb-4">
+        {pipelineStages.map((stage) => (
+          <PipelineColumn
+            key={stage.id}
+            id={stage.id}
+            title={stage.title}
+            color={stage.color}
+            candidates={displayCandidates.filter(c => c.status === stage.title)}
+          />
+        ))}
+      </div>
     </div>
   );
 }
