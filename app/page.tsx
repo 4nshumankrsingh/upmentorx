@@ -11,6 +11,7 @@ import { Briefcase, Users, Target, Clock, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 import AICandidateMatch from '@/components/AICandidateMatch';
+import Pipeline from '@/components/Pipeline';
 
 export default function Dashboard() {
   const [showJobForm, setShowJobForm] = useState(false);
@@ -86,20 +87,20 @@ export default function Dashboard() {
 
           {/* Right Column - Candidate Matching */}
           <div className="space-y-8">
-            <AICandidateMatch />
+            <Pipeline />
             
             {/* Progress Indicator */}
             <div className="bg-white rounded-xl border border-gray-200 p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">Development Progress</h3>
-                  <p className="text-gray-600 mt-1">Phase 3 of 5 completed - Job Management System</p>
+                  <p className="text-gray-600 mt-1">Phase 4 of 5 completed - Drag & Drop Pipeline</p>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-32 bg-gray-200 rounded-full h-2">
-                    <div className="bg-orange-500 h-2 rounded-full" style={{ width: '60%' }}></div>
+                    <div className="bg-orange-500 h-2 rounded-full" style={{ width: '80%' }}></div>
                   </div>
-                  <span className="text-sm font-medium text-gray-700">60%</span>
+                  <span className="text-sm font-medium text-gray-700">80%</span>
                 </div>
               </div>
             </div>
